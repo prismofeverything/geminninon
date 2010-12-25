@@ -60,5 +60,5 @@ void Node::draw()
     position += velocity;
     Color colorcolor = Color( CM_HSV, color );
     glColor4f( colorcolor.r*ratio, colorcolor.g*ratio, colorcolor.b*ratio, 0.9f );
-    gl::drawSphere( position, 10.0, 16 );
+    gl::drawSphere( position, radius, 16 );
 }

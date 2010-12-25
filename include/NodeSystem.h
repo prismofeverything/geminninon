@@ -9,10 +9,10 @@ class NodeSystem {
  public:
     NodeSystem();
     ci::Vec2f disperse( const ci::Vec2i & index );
-    Node & nodeUnder( const ci::Vec2f & over );
+    int nodeUnder( const ci::Vec2f & over );
     void addNodes( int wid, int hei );
     void establishNeighborhoods();
-    void mouseImpact( const ci::Vec2i & mouse, const ci::Vec2f & velocity );
+    void mouseImpact( const ci::Vec2i & mouse, const ci::Vec2f & velocity, const ci::Vec3f & color );
     void changeHueSaturation( float hue, float saturation );
     void update();
     void draw();

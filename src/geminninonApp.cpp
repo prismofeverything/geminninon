@@ -33,6 +33,7 @@ class geminninonApp : public AppBasic {
     Quatf rotation;
     Vec3f eye, towards, up;
     Color background;
+    Vec3f changeColor;
 
     bool down;
     Vec2i mousePosition;
@@ -55,6 +56,7 @@ void geminninonApp::keyDown( KeyEvent event )
 void geminninonApp::mouseDown( MouseEvent event )
 {
     down = true;
+    changeColor = Vec3f( Rand::randFloat(), Rand::randFloat(), 0.5 );
 }
 
 void geminninonApp::mouseUp( MouseEvent event )
@@ -99,7 +101,7 @@ void geminninonApp::update()
 
     system.update();
     if ( down ) {
-        system.mouseImpact( mousePosition, mouseVelocity );
+        system.mouseImpact( mousePosition, mouseVelocity, changeColor );
     }
 }
 

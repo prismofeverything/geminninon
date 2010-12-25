@@ -18,17 +18,16 @@ Vec2f NodeSystem::disperse( const Vec2i & index )
     return (index - dim*0.5f) * dispersal;
 }
 
-Node & NodeSystem::nodeUnder( const Vec2f & over )
+int NodeSystem::nodeUnder( const Vec2f & over )
 {
-    Vec2i index = (over / (dispersal * 1.55)) + Vec2i(1, 1);
-    index[1] /= 0.866;
+    Vec2i index = (over / (dispersal * 1.55)) * Vec2f( 1.0, 1.1547 ) + Vec2i(1, 1);
     if ( index[0] < 0 ) { index[0] = 0; }
     if ( index[1] < 0 ) { index[1] = 0; }
     if ( index[0] >= dim[0] ) { index[0] = dim[0] - 1; }
     if ( index[1] >= dim[1] ) { index[1] = dim[1] - 1; }
     uint32_t into = (dim[1]-index[1])*dim[0] + index[0];
 
-    return nodes[into];
+    return into;
 }
 
 void NodeSystem::addNodes( int width, int height )
@@ -44,7 +43,7 @@ void NodeSystem::addNodes( int width, int height )
     for ( int h = 0; h < height; h++ ) {
         offset = offset == 0.0f ? 0.5f : 0.0f;
         for ( int w = 0; w < width; w++ ) {
-            Node node = Node( 10.0,
+            Node node = Node( 7.0,
                               Vec3f( (w+offset-width*0.5)*dispersal, 
                                      (h-height*0.5)*dispersal*hexagon, 
                                      -20.0f + Rand::randFloat( 10.0f ) - 5.0f), 
@@ -96,12 +95,11 @@ void NodeSystem::establishNeighborhoods()
     }
 }
 
-void NodeSystem::mouseImpact( const Vec2i & mouse, const Vec2f & velocity )
+void NodeSystem::mouseImpact( const Vec2i & mouse, const Vec2f & velocity, const Vec3f & color )
 {
-    Node node = nodeUnder( mouse );
-    node.velocity += Vec3f( 0.0f, 0.0f, 10.0f );
-    node.changeHueSaturation( Rand::randFloat(), Rand::randFloat() );
-    changeHueSaturation( 1.0, 1.0 );
+    int under = nodeUnder( mouse );
+    nodes[under].velocity += Vec3f( 0.0f, 0.0f, 10.0f );
+    nodes[under].color = color; 
 }
 
 void NodeSystem::changeHueSaturation( float hue, float saturation )
