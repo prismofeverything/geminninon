@@ -12,7 +12,7 @@ class NodeSystem {
     int nodeUnder( const ci::Vec2f & over );
     void addNodes( int wid, int hei );
     void establishNeighborhoods();
-    void mouseImpact( const ci::Vec2i & mouse, const ci::Vec2f & velocity, const ci::Vec3f & color );
+    void mouseImpact( const ci::Vec2f & mouse, const ci::Vec2f & velocity, const ci::Vec3f & color );
     void changeHueSaturation( float hue, float saturation );
     void update();
     void draw();

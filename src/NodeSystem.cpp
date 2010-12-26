@@ -20,7 +20,7 @@ Vec2f NodeSystem::disperse( const Vec2i & index )
 
 int NodeSystem::nodeUnder( const Vec2f & over )
 {
-    Vec2i index = (over / (dispersal * 1.55)) * Vec2f( 1.0, 1.1547 ) + Vec2i(1, 1);
+    Vec2i index = (over / (dispersal * 1.5)) * Vec2f( 1.0, 1.1547 ); // + Vec2i(1, 1);
     if ( index[0] < 0 ) { index[0] = 0; }
     if ( index[1] < 0 ) { index[1] = 0; }
     if ( index[0] >= dim[0] ) { index[0] = dim[0] - 1; }
@@ -35,7 +35,7 @@ void NodeSystem::addNodes( int width, int height )
     dim[0] = width;
     dim[1] = height;
 
-    dispersal = 540.0 / max(width, height);
+    dispersal = 510.0 / max(width, height);
     float hue = Rand::randFloat();
     float offset = 0.0f;
     float hexagon = 0.866f;
@@ -95,14 +95,25 @@ void NodeSystem::establishNeighborhoods()
     }
 }
 
-void NodeSystem::mouseImpact( const Vec2i & mouse, const Vec2f & velocity, const Vec3f & color )
+void NodeSystem::mouseImpact( const Vec2f & mouse, const Vec2f & velocity, const Vec3f & color )
 {
-    int under = nodeUnder( mouse );
-    nodes[under].velocity += Vec3f( 0.0f, 0.0f, 10.0f );
-    nodes[under].color = color;
+    int under = -1;
+    int distinct = 0;
+    float length = velocity.length();
+    float ilength = 1.0f / length;
 
-    for ( vector<uint32_t>::iterator index = nodes[under].neighbors.begin(); index != nodes[under].neighbors.end(); index++ ) {
-        nodes[*index].color = color;
+    for ( float segment = 0.0f; segment <= length; segment += 1.0f ) {
+        distinct = nodeUnder( mouse - (velocity * segment * ilength) );
+
+        if ( under != distinct ) {
+            under = distinct;
+            nodes[under].velocity += Vec3f( 0.0f, 0.0f, math<float>::log( length ) * 5.0 );
+            nodes[under].color = color;
+
+            for ( vector<uint32_t>::iterator index = nodes[under].neighbors.begin(); index != nodes[under].neighbors.end(); index++ ) {
+                nodes[*index].color = color;
+            }
+        }
     }
 }
 

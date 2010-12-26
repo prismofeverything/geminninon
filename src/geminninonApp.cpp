@@ -10,7 +10,7 @@ using namespace ci;
 using namespace ci::app;
 using std::vector;
 
-#define GRANULARITY 70
+#define GRANULARITY 50
 
 class geminninonApp : public AppBasic {
   public:
@@ -73,6 +73,7 @@ void geminninonApp::mouseMove( MouseEvent event )
 void geminninonApp::mouseDrag( MouseEvent event )
 {
     mouseMove( event );
+    system.mouseImpact( mousePosition, mouseVelocity, changeColor );
 }
 
 Color geminninonApp::randomColor()
@@ -100,9 +101,9 @@ void geminninonApp::update()
     gl::rotate( rotation );
 
     system.update();
-    if ( down ) {
-        system.mouseImpact( mousePosition, mouseVelocity, changeColor );
-    }
+    // if ( down ) {
+    //     system.mouseImpact( mousePosition, mouseVelocity, changeColor );
+    // }
 }
 
 void geminninonApp::draw()
