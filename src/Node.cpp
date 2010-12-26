@@ -46,7 +46,7 @@ void Node::update( vector<Node> const& nodes )
         colorForce += nodes[*index].color - color;
     }
 
-    colorForce *= lateral * 0.1f;
+    colorForce *= lateral * 0.01f;
     colorForce[2] = 0.0f;
     color += colorForce;
 
@@ -56,7 +56,7 @@ void Node::update( vector<Node> const& nodes )
 
 void Node::draw()
 {
-    float ratio = (idealZ - position[2]) * 0.2f + 1.0f;
+    float ratio = (idealZ - position[2]) * 0.15f + 1.5f;
     position += velocity;
     Color colorcolor = Color( CM_HSV, color );
     glColor4f( colorcolor.r*ratio, colorcolor.g*ratio, colorcolor.b*ratio, 0.9f );

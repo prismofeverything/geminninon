@@ -43,7 +43,7 @@ void NodeSystem::addNodes( int width, int height )
     for ( int h = 0; h < height; h++ ) {
         offset = offset == 0.0f ? 0.5f : 0.0f;
         for ( int w = 0; w < width; w++ ) {
-            Node node = Node( 7.0,
+            Node node = Node( 9.0,
                               Vec3f( (w+offset-width*0.5)*dispersal, 
                                      (h-height*0.5)*dispersal*hexagon, 
                                      -20.0f + Rand::randFloat( 10.0f ) - 5.0f), 
@@ -99,7 +99,11 @@ void NodeSystem::mouseImpact( const Vec2i & mouse, const Vec2f & velocity, const
 {
     int under = nodeUnder( mouse );
     nodes[under].velocity += Vec3f( 0.0f, 0.0f, 10.0f );
-    nodes[under].color = color; 
+    nodes[under].color = color;
+
+    for ( vector<uint32_t>::iterator index = nodes[under].neighbors.begin(); index != nodes[under].neighbors.end(); index++ ) {
+        nodes[*index].color = color;
+    }
 }
 
 void NodeSystem::changeHueSaturation( float hue, float saturation )
