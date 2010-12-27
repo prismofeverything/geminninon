@@ -109,12 +109,6 @@ void NodeSystem::mouseImpact( const Vec2f & mouse, const Vec2f & velocity, const
             under = distinct;
             nodes[under].impact( nodes, length, color );
         }
-            // nodes[under].velocity += Vec3f( 0.0f, 0.0f, math<float>::log( length ) * 3.0 );
-            // nodes[under].color = color;
-
-            // for ( vector<uint32_t>::iterator index = nodes[under].neighbors.begin(); index != nodes[under].neighbors.end(); index++ ) {
-            //     nodes[*index].color = color;
-            // }
     }
 }
 
