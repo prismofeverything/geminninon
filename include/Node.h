@@ -10,6 +10,7 @@ class Node {
     void update( std::vector<Node> const& nodes );
     void draw();
     void addNeighbors( std::vector<uint32_t> const& other );
+    void impact( std::vector<Node> &, float length, ci::Vec3f newColor );
     void changeHueSaturation( float hue, float saturation );
 
     ci::Vec3f position;

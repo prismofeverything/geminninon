@@ -57,6 +57,7 @@ void geminninonApp::mouseDown( MouseEvent event )
 {
     down = true;
     changeColor = Vec3f( Rand::randFloat(), Rand::randFloat(), 0.5 );
+    system.mouseImpact( mousePosition, mouseVelocity, changeColor );
 }
 
 void geminninonApp::mouseUp( MouseEvent event )

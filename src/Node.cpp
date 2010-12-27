@@ -34,6 +34,15 @@ void Node::addNeighbors( vector<uint32_t> const& other )
     lateral = 1.0 / neighbors.size();
 }
 
+void Node::impact( vector<Node> & nodes, float length, Vec3f newColor ) {
+    velocity += Vec3f( 0.0f, 0.0f, math<float>::log( length ) * 3.0 );
+    color = newColor;
+
+    for ( vector<uint32_t>::iterator index = neighbors.begin(); index != neighbors.end(); index++ ) {
+        nodes[*index].color = newColor;
+    }
+}
+
 void Node::changeHueSaturation( float hue, float saturation )
 {
     color[0] = hue;

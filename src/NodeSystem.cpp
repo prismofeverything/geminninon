@@ -46,9 +46,9 @@ void NodeSystem::addNodes( int width, int height )
             Node node = Node( 9.0,
                               Vec3f( (w+offset-width*0.5)*dispersal, 
                                      (h-height*0.5)*dispersal*hexagon, 
-                                     -20.0f + Rand::randFloat( 10.0f ) - 5.0f), 
+                                     -20.0f ), // + Rand::randFloat( 10.0f ) - 5.0f), 
                               Vec3f::zero(), 
-                              20.0f, // + Rand::randFloat( 50.0f ), 
+                              10.0f, // + Rand::randFloat( 50.0f ), 
                               Vec3f( hue, 0.5f, 0.5f ), //Vec3f( Rand::randFloat(), Rand::randFloat(), Rand::randFloat() ), 
                               0.0f, 0.4f, -20.0f, 0.99f );
 
@@ -107,13 +107,14 @@ void NodeSystem::mouseImpact( const Vec2f & mouse, const Vec2f & velocity, const
 
         if ( under != distinct ) {
             under = distinct;
-            nodes[under].velocity += Vec3f( 0.0f, 0.0f, math<float>::log( length ) * 5.0 );
-            nodes[under].color = color;
-
-            for ( vector<uint32_t>::iterator index = nodes[under].neighbors.begin(); index != nodes[under].neighbors.end(); index++ ) {
-                nodes[*index].color = color;
-            }
+            nodes[under].impact( nodes, length, color );
         }
+            // nodes[under].velocity += Vec3f( 0.0f, 0.0f, math<float>::log( length ) * 3.0 );
+            // nodes[under].color = color;
+
+            // for ( vector<uint32_t>::iterator index = nodes[under].neighbors.begin(); index != nodes[under].neighbors.end(); index++ ) {
+            //     nodes[*index].color = color;
+            // }
     }
 }
 
