@@ -11,6 +11,7 @@ using namespace ci::app;
 using std::vector;
 
 #define GRANULARITY 50
+#define TAU 6.2831853071795862f
 
 class geminninonApp : public AppBasic {
   public:
@@ -20,6 +21,7 @@ class geminninonApp : public AppBasic {
 	void draw();
 
 	void keyDown( KeyEvent event );	
+	void keyUp( KeyEvent event );	
 	void mouseDown( MouseEvent event );	
 	void mouseUp( MouseEvent event );	
 	void mouseMove( MouseEvent event );	
@@ -35,7 +37,9 @@ class geminninonApp : public AppBasic {
     Color background;
     Vec3f changeColor;
 
-    bool down;
+    char key;
+    bool keyIsDown;
+    bool mouseIsDown;
     Vec2i mousePosition;
     Vec2f mouseVelocity;
 };
@@ -49,20 +53,25 @@ void geminninonApp::prepareSettings( Settings *settings )
 
 void geminninonApp::keyDown( KeyEvent event )
 {
-    background = randomColor();
-    system.changeHueSaturation( Rand::randFloat(), Rand::randFloat() );
+    key = event.getChar();
+    keyIsDown = true;
+}
+
+void geminninonApp::keyUp( KeyEvent event )
+{
+    keyIsDown = false;
 }
 
 void geminninonApp::mouseDown( MouseEvent event )
 {
-    down = true;
+    mouseIsDown = true;
     changeColor = Vec3f( Rand::randFloat(), Rand::randFloat(), 0.5 );
     system.mouseImpact( mousePosition, mouseVelocity, changeColor );
 }
 
 void geminninonApp::mouseUp( MouseEvent event )
 {
-    down = false;
+    mouseIsDown = false;
 }
 
 void geminninonApp::mouseMove( MouseEvent event )
@@ -85,7 +94,9 @@ Color geminninonApp::randomColor()
 void geminninonApp::setup()
 {
     background = randomColor();
-    down = false;
+    mouseIsDown = false;
+    keyIsDown = false;
+
     eye = Vec3f( 0.0f, 0.0f, 300.0f );
     towards = Vec3f::zero();
     up = Vec3f::yAxis();
@@ -101,10 +112,24 @@ void geminninonApp::update()
     gl::setMatrices( camera );
     gl::rotate( rotation );
 
+    if ( keyIsDown ) {
+        if ( key == 32 ) { // space
+            background = randomColor();
+            system.changeHueSaturation( Rand::randFloat(), Rand::randFloat() );
+        } else if ( key == 'j' ) { // left
+            rotation.v[0] += 1.0;
+        } else if ( key == 'i' ) { // up
+            rotation.w += 0.01;
+            if ( rotation.w > 1 ) { rotation.w -= 2; }
+        } else if ( key == 'l' ) { // right
+            rotation.v[0] -= 1.0;
+        } else if ( key == 'k' ) { // down
+            rotation.w -= 0.01;
+            if ( rotation.w < -1 ) { rotation.w += 2; }
+        }
+    }
+
     system.update();
-    // if ( down ) {
-    //     system.mouseImpact( mousePosition, mouseVelocity, changeColor );
-    // }
 }
 
 void geminninonApp::draw()

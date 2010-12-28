@@ -75,9 +75,10 @@ void Node::update( vector<Node> const& nodes )
 
 void Node::draw()
 {
-    float ratio = (position[2] - idealZ) * 0.15f + 1.5f;
     position += velocity;
+    float ratio = (position[2] - idealZ) * 0.15f + 1.5f;
     Color colorcolor = Color( CM_HSV, color );
+
     glColor4f( colorcolor.r*ratio, colorcolor.g*ratio, colorcolor.b*ratio, 0.9f );
     gl::drawSphere( position, radius, 16 );
 }
