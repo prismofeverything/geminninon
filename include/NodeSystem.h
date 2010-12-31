@@ -14,6 +14,7 @@ class NodeSystem {
     void establishNeighborhoods();
     void mouseImpact( const ci::Vec2f & mouse, const ci::Vec2f & velocity, const ci::Vec3f & color );
     void changeHueSaturation( float hue, float saturation );
+    void mass( float level );
     void update();
     void draw();
 

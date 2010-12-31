@@ -4,6 +4,8 @@
 #include "cinder/Color.h"
 #include "cinder/Camera.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/Texture.h"
+#include "Kinect.h"
 #include "RtMidi.h"
 #include "NodeSystem.h"
 
@@ -15,17 +17,6 @@ using std::string;
 #define GRANULARITY 50
 #define TAU 6.2831853071795862f
 
-struct midi {
-    unsigned char type;
-    unsigned char key;
-    unsigned char velocity;
-    float stamp;
-};
-
-// global midi variables
-bool midiReady;
-std::vector<midi> midiEvents;
-
 class geminninonApp : public AppBasic {
   public:
 	void prepareSettings( Settings *settings );
@@ -33,6 +24,7 @@ class geminninonApp : public AppBasic {
 	void update();
 	void draw();
 
+    void midiIn( double deltatime, std::vector<unsigned char> *message, void *userData );
 	void keyDown( KeyEvent event );	
 	void keyUp( KeyEvent event );	
 	void mouseDown( MouseEvent event );	
@@ -42,14 +34,28 @@ class geminninonApp : public AppBasic {
 
     Color randomColor();
 
+    // system
     NodeSystem system;
 
+    // viewport
     CameraPersp camera;
     Quatf rotation;
     Vec3f eye, towards, up;
     Color background;
     Vec3f changeColor;
+    Vec3f kinectColor;
 
+    int width;
+    int height;
+
+    // kinect
+	Kinect kinect;
+	gl::Texture kinectDepth;
+	float kinectTilt, kinectScale;
+	float XOff, mYOff;
+    int kinectWidth, kinectHeight;
+
+    // input
     char key;
     bool keyIsDown;
     bool mouseIsDown;
@@ -60,8 +66,34 @@ class geminninonApp : public AppBasic {
 void geminninonApp::prepareSettings( Settings *settings )
 {
     Rand::randomize();
-	settings->setWindowSize( 800, 800*0.866 );
+
+    width = 800;
+    height = width * 0.866;
+	settings->setWindowSize( width, height );
 	settings->setFrameRate( 40.0f );
+}
+
+void geminninonApp::midiIn( double deltatime, std::vector<unsigned char> *message, void *userData )
+{
+    unsigned char type = (*message)[0];
+    unsigned char key = message->size() > 1 ? (*message)[1] : 0;
+    unsigned char velocity = message->size() > 2 ? (*message)[2] : 0;
+
+    if ( type == 176 ) { // control
+        if ( key == 19 ) {
+            kinectColor[2] = velocity / 127.1;
+        } else if ( key == 18 ) {
+            kinectColor[1] = velocity / 127.1;
+        } else if ( key == 80 ) {
+            kinectColor[0] = velocity / 127.1;
+        } else if ( key == 74 ) {
+            system.mass( 5.0 + velocity );
+        }
+    } else if ( type == 144 ) { // key
+
+    } else if ( type == 224 ) { // pitch
+
+    }
 }
 
 void geminninonApp::keyDown( KeyEvent event )
@@ -115,12 +147,31 @@ void geminninonApp::setup()
     up = Vec3f::yAxis();
 	camera.setPerspective( 75.0f, getWindowAspectRatio(), 5.0f, 2000.0f );
 
+    kinectTilt = -13.0f;
+    kinect = Kinect( Kinect::Device() ); 
+    kinectWidth = 640;
+    kinectHeight = 480;
+    kinectDepth = gl::Texture( kinectWidth, kinectHeight );
+    kinectColor = Vec3f( 0.0f, 0.0f, 0.0f );
+
     system.addNodes( GRANULARITY, GRANULARITY );
     system.establishNeighborhoods();
+
+    gl::enableDepthRead();
+    gl::enableDepthWrite();
 }
 
 void geminninonApp::update()
 {
+	if( kinect.checkNewDepthFrame() ) {
+		kinectDepth = kinect.getDepthImage();
+        kinectDepth.setFlipped(true);
+    }
+
+	if( kinectTilt != kinect.getTilt() ) {
+		kinect.setTilt( kinectTilt );
+    }
+
     camera.lookAt( eye, towards, up );
     gl::setMatrices( camera );
     gl::rotate( rotation );
@@ -142,76 +193,60 @@ void geminninonApp::update()
         }
     }
 
-    if ( midiReady ) {
-        background = randomColor();
-        system.changeHueSaturation( Rand::randFloat(), Rand::randFloat() );
-        midiReady = false;
-    }
-
     system.update();
 }
 
 void geminninonApp::draw()
 {
     gl::clear( background );
-    gl::enableDepthRead();
-    gl::enableDepthWrite();
 
     system.draw();
+    Color kcolor = Color( CM_HSV, kinectColor );
+    glColor4f( kcolor.r, kcolor.g, kcolor.b, 0.7f );
+    gl::draw( kinectDepth, Vec2f( -kinectWidth * 0.5, -kinectHeight * 0.5 ) );
 }
+
+AppBasic *geminninon;
 
 void midiIn( double deltatime, std::vector<unsigned char> *message, void *userData )
 {
-    midiReady = true;
-    midi event;
-    event.stamp = deltatime;
-    event.type = (*message)[0];
-
-    if ( message->size() > 1 ) {
-        event.key = (*message)[1];
-
-        if ( message->size() > 2 ) {
-            event.velocity = (*message)[2];
-        }
-    }
-    
-    midiEvents.push_back( event );
+    ((geminninonApp *) geminninon)->midiIn( deltatime, message, userData );
 }
 
 int main( int argc, char * const argv[] ) {								
-    AppBasic::prepareLaunch();								
-    AppBasic *app = new geminninonApp();								
+    AppBasic::prepareLaunch();							
+    geminninon = new geminninonApp();								
     Renderer *ren = new RendererGl();							
     std::string title("yellow");
 
-    midiReady = false;
+    bool midiEnabled = true;
     RtMidiIn * midiin = 0;
 
     try {
-        //        midiin = boost::shared_ptr<RtMidiIn>(new RtMidiIn());
         midiin = new RtMidiIn();
-    }
-    catch ( RtError &error ) {
+    } catch ( RtError &error ) {
         error.printMessage();
-        exit( EXIT_FAILURE );
+        midiEnabled = false;
     }
 
-    try {
-        midiin->openPort( 0 );
-    }
-    catch ( RtError &error ) {
-        error.printMessage();
-        goto cleanup;
+    if ( midiEnabled ) {
+        try {
+            midiin->openPort( 0 );
+        } catch ( RtError &error ) {
+            error.printMessage();
+            delete midiin;
+        }
+
+        midiin->setCallback( &midiIn );
+        midiin->ignoreTypes( false, false, true );
     }
 
-    midiin->setCallback( &midiIn );
-    midiin->ignoreTypes( false, false, true );
-
-    AppBasic::executeLaunch( app, ren, title.c_str(), argc, argv );	
+    AppBasic::executeLaunch( geminninon, ren, title.c_str(), argc, argv );
     AppBasic::cleanupLaunch();								
 
- cleanup:    
-    delete midiin;
+    if ( midiEnabled ) {
+        delete midiin;
+    }
 
     return 0;															
 }

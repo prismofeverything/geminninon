@@ -80,5 +80,5 @@ void Node::draw()
     Color colorcolor = Color( CM_HSV, color );
 
     glColor4f( colorcolor.r*ratio, colorcolor.g*ratio, colorcolor.b*ratio, 0.9f );
-    gl::drawSphere( position, radius, 16 );
+    gl::drawSphere( position, radius, 10 );
 }

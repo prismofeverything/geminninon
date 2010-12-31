@@ -48,7 +48,7 @@ void NodeSystem::addNodes( int width, int height )
                                      (h-height*0.5)*dispersal*hexagon, 
                                      -20.0f ), // + Rand::randFloat( 10.0f ) - 5.0f), 
                               Vec3f::zero(), 
-                              10.0f, // + Rand::randFloat( 50.0f ), 
+                              100.0f, // + Rand::randFloat( 50.0f ), 
                               Vec3f( hue, 0.5f, 0.5f ), //Vec3f( Rand::randFloat(), Rand::randFloat(), Rand::randFloat() ), 
                               0.0f, 0.4f, -20.0f, 0.99f );
 
@@ -116,6 +116,13 @@ void NodeSystem::changeHueSaturation( float hue, float saturation )
 {
     for ( vector<Node>::iterator node = nodes.begin(); node != nodes.end(); node++ ) {
         node->changeHueSaturation( hue, saturation );
+    }
+}
+
+void NodeSystem::mass( float level )
+{
+    for ( vector<Node>::iterator node = nodes.begin(); node != nodes.end(); node++ ) {
+        node->mass = level;
     }
 }
 
