@@ -4,14 +4,27 @@
 #include "cinder/Color.h"
 #include "cinder/Camera.h"
 #include "cinder/gl/gl.h"
+#include "RtMidi.h"
 #include "NodeSystem.h"
 
 using namespace ci;
 using namespace ci::app;
 using std::vector;
+using std::string;
 
 #define GRANULARITY 50
 #define TAU 6.2831853071795862f
+
+struct midi {
+    unsigned char type;
+    unsigned char key;
+    unsigned char velocity;
+    float stamp;
+};
+
+// global midi variables
+bool midiReady;
+std::vector<midi> midiEvents;
 
 class geminninonApp : public AppBasic {
   public:
@@ -129,6 +142,12 @@ void geminninonApp::update()
         }
     }
 
+    if ( midiReady ) {
+        background = randomColor();
+        system.changeHueSaturation( Rand::randFloat(), Rand::randFloat() );
+        midiReady = false;
+    }
+
     system.update();
 }
 
@@ -141,5 +160,60 @@ void geminninonApp::draw()
     system.draw();
 }
 
+void midiIn( double deltatime, std::vector<unsigned char> *message, void *userData )
+{
+    midiReady = true;
+    midi event;
+    event.stamp = deltatime;
+    event.type = (*message)[0];
 
-CINDER_APP_BASIC( geminninonApp, RendererGl )
+    if ( message->size() > 1 ) {
+        event.key = (*message)[1];
+
+        if ( message->size() > 2 ) {
+            event.velocity = (*message)[2];
+        }
+    }
+    
+    midiEvents.push_back( event );
+}
+
+int main( int argc, char * const argv[] ) {								
+    AppBasic::prepareLaunch();								
+    AppBasic *app = new geminninonApp();								
+    Renderer *ren = new RendererGl();							
+    std::string title("yellow");
+
+    midiReady = false;
+    RtMidiIn * midiin = 0;
+
+    try {
+        //        midiin = boost::shared_ptr<RtMidiIn>(new RtMidiIn());
+        midiin = new RtMidiIn();
+    }
+    catch ( RtError &error ) {
+        error.printMessage();
+        exit( EXIT_FAILURE );
+    }
+
+    try {
+        midiin->openPort( 0 );
+    }
+    catch ( RtError &error ) {
+        error.printMessage();
+        goto cleanup;
+    }
+
+    midiin->setCallback( &midiIn );
+    midiin->ignoreTypes( false, false, true );
+
+    AppBasic::executeLaunch( app, ren, title.c_str(), argc, argv );	
+    AppBasic::cleanupLaunch();								
+
+ cleanup:    
+    delete midiin;
+
+    return 0;															
+}
+
+
