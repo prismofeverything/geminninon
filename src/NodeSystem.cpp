@@ -1,6 +1,7 @@
 #include "NodeSystem.h"
 #include "cinder/Rand.h"
 #include "cinder/Vector.h"
+#include "cinder/audio/PcmBuffer.h"
 #include <vector>
 #include <algorithm>
 
@@ -10,7 +11,11 @@ using namespace std;
 NodeSystem::NodeSystem()
 {
     dim = Vec2i(0, 0);
+    total = 0;
     dispersal = 20.0;
+    level = 0.4;
+    inertia = 0.0;
+    contributors = 200;
 }
 
 Vec2f NodeSystem::disperse( const Vec2i & index )
@@ -34,6 +39,7 @@ void NodeSystem::addNodes( int width, int height )
 {
     dim[0] = width;
     dim[1] = height;
+    total = width * height;
 
     dispersal = 510.0 / max(width, height);
     float hue = Rand::randFloat();
@@ -48,9 +54,9 @@ void NodeSystem::addNodes( int width, int height )
                                      (h-height*0.5)*dispersal*hexagon, 
                                      -20.0f ), // + Rand::randFloat( 10.0f ) - 5.0f), 
                               Vec3f::zero(), 
-                              100.0f, // + Rand::randFloat( 50.0f ), 
+                              50.0f, // + Rand::randFloat( 50.0f ), 
                               Vec3f( hue, 0.5f, 0.5f ), //Vec3f( Rand::randFloat(), Rand::randFloat(), Rand::randFloat() ), 
-                              0.0f, 0.4f, -20.0f, 0.99f );
+                              0.0f, 0.2f, -20.0f, 0.995f );
 
             nodes.push_back( node );
         }
@@ -116,6 +122,23 @@ void NodeSystem::changeHueSaturation( float hue, float saturation )
 {
     for ( vector<Node>::iterator node = nodes.begin(); node != nodes.end(); node++ ) {
         node->changeHueSaturation( hue, saturation );
+    }
+}
+
+void NodeSystem::generateAudio( uint64_t offset, uint32_t count, ci::audio::Buffer32f *buffer ) 
+{
+    float factor = 0.27f;
+    int step = total / contributors;
+    for ( uint32_t index = 0; index < count; index++ ) {
+        buffer->mData[index*2] = 0;
+        buffer->mData[index*2+1] = 0;
+        for ( int distinct = 0; distinct < total; distinct += step ) {
+            level = nodes[distinct].advance();
+            buffer->mData[index*2] += level;
+            buffer->mData[index*2+1] += level;
+        }
+        buffer->mData[index*2] *= factor;
+        buffer->mData[index*2+1] *= factor;
     }
 }
 

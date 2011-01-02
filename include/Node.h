@@ -11,6 +11,7 @@ class Node {
     void draw();
     void addNeighbors( std::vector<uint32_t> const& other );
     void impact( std::vector<Node> &, float length, ci::Vec3f newColor );
+    float advance();
     void changeHueSaturation( float hue, float saturation );
 
     ci::Vec3f position;
@@ -24,6 +25,10 @@ class Node {
     float damping; 
     float idealZ;
     float lateral;
+    float baselevel;
+    float level;
+    float inertia;
+    float frequency;
 
     std::vector<uint32_t> neighbors;
 };

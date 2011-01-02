@@ -3,6 +3,11 @@
 #include "cinder/Vector.h"
 #include "cinder/Color.h"
 #include "cinder/Camera.h"
+#include "cinder/CinderMath.h"
+#include "cinder/Cinder.h"
+#include "cinder/audio/Output.h"
+#include "cinder/audio/Callback.h"
+#include "cinder/audio/PcmBuffer.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
 #include "Kinect.h"
@@ -143,6 +148,7 @@ void geminninonApp::setup()
     mouseIsDown = false;
     keyIsDown = false;
 
+    rotation.w = -0.74f;
     eye = Vec3f( 0.0f, 0.0f, 300.0f );
     towards = Vec3f::zero();
     up = Vec3f::yAxis();
@@ -160,6 +166,8 @@ void geminninonApp::setup()
 
     system.addNodes( GRANULARITY, GRANULARITY );
     system.establishNeighborhoods();
+
+    audio::Output::play( audio::createCallback( &system, &NodeSystem::generateAudio, true ) );
 
     gl::enableDepthRead();
     gl::enableDepthWrite();
@@ -190,12 +198,12 @@ void geminninonApp::update()
             rotation.v[0] += 1.0;
         } else if ( key == 'i' ) { // up
             rotation.w += 0.01;
-            if ( rotation.w > 1 ) { rotation.w -= 2; }
+            if ( rotation.w > 1 ) { rotation.w -= 2.0f; }
         } else if ( key == 'l' ) { // right
             rotation.v[0] -= 1.0;
         } else if ( key == 'k' ) { // down
             rotation.w -= 0.01;
-            if ( rotation.w < -1 ) { rotation.w += 2; }
+            if ( rotation.w <= -1 ) { rotation.w += 2; }
         }
     }
 

@@ -1,5 +1,6 @@
 #include "Node.h"
 #include "cinder/Vector.h"
+#include "cinder/Rand.h"
 #include "cinder/Color.h"
 #include "cinder/CinderMath.h"
 #include "cinder/gl/gl.h"
@@ -26,6 +27,10 @@ Node::Node( float rad, Vec3f pos, Vec3f vel, float mas, Vec3f col, float theta, 
     damping = damp;
     idealZ = ideal;
     lateral = 0.0f;
+    baselevel = 0.5f;
+    level = baselevel;
+    inertia = 0.0f;
+    frequency = Rand::randFloat( 0.0008f ) + 0.0008f;
 }
 
 void Node::addNeighbors( vector<uint32_t> const& other ) 
@@ -41,6 +46,18 @@ void Node::impact( vector<Node> & nodes, float length, Vec3f newColor ) {
     for ( vector<uint32_t>::iterator index = neighbors.begin(); index != neighbors.end(); index++ ) {
         nodes[*index].color = newColor;
     }
+}
+
+float Node::advance() {
+    inertia -= level * math<float>::pow(1.08, position[2] - idealZ) * frequency;
+    level += inertia;
+    if ( level > baselevel ) {
+        level = baselevel;
+    } else if ( level < -baselevel ) {
+        level = -baselevel;
+    }
+    // level *= 0.9999f;
+    return level;
 }
 
 void Node::changeHueSaturation( float hue, float saturation )
@@ -80,5 +97,5 @@ void Node::draw()
     Color colorcolor = Color( CM_HSV, color );
 
     glColor4f( colorcolor.r*ratio, colorcolor.g*ratio, colorcolor.b*ratio, 0.9f );
-    gl::drawSphere( position, radius, 10 );
+    gl::drawSphere( position, radius, 8 );
 }
