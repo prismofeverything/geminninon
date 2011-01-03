@@ -56,7 +56,12 @@ void NodeSystem::addNodes( int width, int height )
                               Vec3f::zero(), 
                               50.0f, // + Rand::randFloat( 50.0f ), 
                               Vec3f( hue, 0.5f, 0.5f ), //Vec3f( Rand::randFloat(), Rand::randFloat(), Rand::randFloat() ), 
-                              0.0f, 0.2f, -20.0f, 0.995f );
+                              0.0f, 
+                              0.8f, // 0.01f / w, 
+                              -20.0f, 
+                              0.995f,
+                              // 0.00007f * ( w + 1 ) + ( h * 0.00002f ) ); // Rand::randFloat( 0.0008f ) + 0.0003f ); // 
+                              0.00008f * ( w + 1 ) + ( h * 0.00001f ) );
 
             nodes.push_back( node );
         }
@@ -125,9 +130,9 @@ void NodeSystem::changeHueSaturation( float hue, float saturation )
     }
 }
 
-void NodeSystem::generateAudio( uint64_t offset, uint32_t count, ci::audio::Buffer32f *buffer ) 
+void NodeSystem::generateAudio( uint64_t offset, uint32_t count, ci::audio::Buffer32f *buffer )
 {
-    float factor = 0.27f;
+    float factor = 0.27f; // 0.001f;
     int step = total / contributors;
     for ( uint32_t index = 0; index < count; index++ ) {
         buffer->mData[index*2] = 0;

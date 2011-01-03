@@ -15,7 +15,7 @@ Node::Node()
 {
 }
 
-Node::Node( float rad, Vec3f pos, Vec3f vel, float mas, Vec3f col, float theta, float amp, float ideal, float damp )
+Node::Node( float rad, Vec3f pos, Vec3f vel, float mas, Vec3f col, float theta, float amp, float ideal, float damp, float freq )
 {
     radius = rad;
     position = pos;
@@ -27,10 +27,10 @@ Node::Node( float rad, Vec3f pos, Vec3f vel, float mas, Vec3f col, float theta, 
     damping = damp;
     idealZ = ideal;
     lateral = 0.0f;
-    baselevel = 0.5f;
-    level = baselevel;
+    baselevel = 0.7f;
+    level = baselevel * 0.8f;
     inertia = 0.0f;
-    frequency = Rand::randFloat( 0.0008f ) + 0.0008f;
+    frequency = freq; 
 }
 
 void Node::addNeighbors( vector<uint32_t> const& other ) 
@@ -49,15 +49,18 @@ void Node::impact( vector<Node> & nodes, float length, Vec3f newColor ) {
 }
 
 float Node::advance() {
-    inertia -= level * math<float>::pow(1.08, position[2] - idealZ) * frequency;
+    float factor = math<float>::pow(1.12, position[2] - idealZ);
+    inertia -= level * factor * frequency; // level * factor;
     level += inertia;
     if ( level > baselevel ) {
         level = baselevel;
     } else if ( level < -baselevel ) {
         level = -baselevel;
     }
-    // level *= 0.9999f;
-    return level;
+
+    float scale = (position[2] - idealZ) * 0.2f + 0.1f;
+    if ( scale < 0 ) factor = 0;
+    return level * amplitude * scale;
 }
 
 void Node::changeHueSaturation( float hue, float saturation )

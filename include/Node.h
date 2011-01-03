@@ -6,7 +6,7 @@
 class Node {
  public:
     Node();
-    Node( float rad, ci::Vec3f pos, ci::Vec3f vel, float mas, ci::Vec3f col, float theta, float amp, float ideal, float damp );
+    Node( float rad, ci::Vec3f pos, ci::Vec3f vel, float mas, ci::Vec3f col, float theta, float amp, float ideal, float damp, float freq );
     void update( std::vector<Node> const& nodes );
     void draw();
     void addNeighbors( std::vector<uint32_t> const& other );

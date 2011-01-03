@@ -19,7 +19,7 @@ using namespace ci::app;
 using std::vector;
 using std::string;
 
-#define GRANULARITY 50
+#define GRANULARITY 53
 #define TAU 6.2831853071795862f
 
 class geminninonApp : public AppBasic {
@@ -40,7 +40,7 @@ class geminninonApp : public AppBasic {
     Color randomColor();
 
     // system
-    NodeSystem system;
+    NodeSystem * system;
 
     // viewport
     CameraPersp camera;
@@ -93,7 +93,7 @@ void geminninonApp::midiIn( double deltatime, std::vector<unsigned char> *messag
         } else if ( key == 80 ) {
             kinectColor[0] = velocity / 127.1;
         } else if ( key == 74 ) {
-            system.mass( 5.0 + velocity );
+            system->mass( 5.0 + velocity );
         }
     } else if ( type == 144 ) { // key
 
@@ -117,7 +117,7 @@ void geminninonApp::mouseDown( MouseEvent event )
 {
     mouseIsDown = true;
     changeColor = Vec3f( Rand::randFloat(), Rand::randFloat(), 0.5 );
-    system.mouseImpact( mousePosition, mouseVelocity, changeColor );
+    system->mouseImpact( mousePosition, mouseVelocity, changeColor );
 }
 
 void geminninonApp::mouseUp( MouseEvent event )
@@ -134,7 +134,7 @@ void geminninonApp::mouseMove( MouseEvent event )
 void geminninonApp::mouseDrag( MouseEvent event )
 {
     mouseMove( event );
-    system.mouseImpact( mousePosition, mouseVelocity, changeColor );
+    system->mouseImpact( mousePosition, mouseVelocity, changeColor );
 }
 
 Color geminninonApp::randomColor()
@@ -164,10 +164,11 @@ void geminninonApp::setup()
         kinectColor = Vec3f( 0.0f, 0.0f, 0.0f );
     }
 
-    system.addNodes( GRANULARITY, GRANULARITY );
-    system.establishNeighborhoods();
+    system = new NodeSystem();
+    system->addNodes( GRANULARITY, GRANULARITY );
+    system->establishNeighborhoods();
 
-    audio::Output::play( audio::createCallback( &system, &NodeSystem::generateAudio, true ) );
+    audio::Output::play( audio::createCallback( system, &NodeSystem::generateAudio, true ) );
 
     gl::enableDepthRead();
     gl::enableDepthWrite();
@@ -193,7 +194,7 @@ void geminninonApp::update()
     if ( keyIsDown ) {
         if ( key == 32 ) { // space
             background = randomColor();
-            system.changeHueSaturation( Rand::randFloat(), Rand::randFloat() );
+            system->changeHueSaturation( Rand::randFloat(), Rand::randFloat() );
         } else if ( key == 'j' ) { // left
             rotation.v[0] += 1.0;
         } else if ( key == 'i' ) { // up
@@ -207,14 +208,14 @@ void geminninonApp::update()
         }
     }
 
-    system.update();
+    system->update();
 }
 
 void geminninonApp::draw()
 {
     gl::clear( background );
 
-    system.draw();
+    system->draw();
 
     if ( kinectEnabled ) {
         Color kcolor = Color( CM_HSV, kinectColor );
