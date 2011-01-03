@@ -8,6 +8,8 @@
 using namespace ci;
 using namespace std;
 
+#define HEXAGON 0.866
+
 NodeSystem::NodeSystem()
 {
     dim = Vec2i(0, 0);
@@ -41,17 +43,18 @@ void NodeSystem::addNodes( int width, int height )
     dim[1] = height;
     total = width * height;
 
-    dispersal = 510.0 / max(width, height);
+    dispersal = 510.0f / max(width, height);
     float hue = Rand::randFloat();
     float offset = 0.0f;
-    float hexagon = 0.866f;
+    float distanceFromCenter = 0.0f;
 
     for ( int h = 0; h < height; h++ ) {
         offset = offset == 0.0f ? 0.5f : 0.0f;
         for ( int w = 0; w < width; w++ ) {
-            Node node = Node( 9.0,
-                              Vec3f( (w+offset-width*0.5)*dispersal, 
-                                     (h-height*0.5)*dispersal*hexagon, 
+            distanceFromCenter = math<float>::sqrt(math<float>::pow(w - (width*0.5f), 2) + math<float>::pow(h - (height*0.5f), 2));
+            Node node = Node( 9.0f,
+                              Vec3f( (w+offset-width*0.5f)*dispersal, 
+                                     (h-height*0.5f)*dispersal*HEXAGON, 
                                      -20.0f ), // + Rand::randFloat( 10.0f ) - 5.0f), 
                               Vec3f::zero(), 
                               50.0f, // + Rand::randFloat( 50.0f ), 
@@ -61,7 +64,8 @@ void NodeSystem::addNodes( int width, int height )
                               -20.0f, 
                               0.995f,
                               // 0.00007f * ( w + 1 ) + ( h * 0.00002f ) ); // Rand::randFloat( 0.0008f ) + 0.0003f ); // 
-                              0.00008f * ( w + 1 ) + ( h * 0.00001f ) );
+                              // 0.00008f * ( w + 1 ) + ( h * 0.00001f ) );
+                              distanceFromCenter * 0.0001f + 0.0002 );
 
             nodes.push_back( node );
         }

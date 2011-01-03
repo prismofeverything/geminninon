@@ -49,7 +49,7 @@ void Node::impact( vector<Node> & nodes, float length, Vec3f newColor ) {
 }
 
 float Node::advance() {
-    float factor = math<float>::pow(1.12, position[2] - idealZ);
+    float factor = math<float>::pow(1.07, position[2] - idealZ);
     inertia -= level * factor * frequency; // level * factor;
     level += inertia;
     if ( level > baselevel ) {
