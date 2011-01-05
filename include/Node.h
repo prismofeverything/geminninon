@@ -29,6 +29,7 @@ class Node {
     float level;
     float inertia;
     float frequency;
+    float scale;
 
     std::vector<uint32_t> neighbors;
 };

@@ -28,9 +28,10 @@ Node::Node( float rad, Vec3f pos, Vec3f vel, float mas, Vec3f col, float theta, 
     idealZ = ideal;
     lateral = 0.0f;
     baselevel = 0.7f;
-    level = baselevel * 0.8f;
+    level = baselevel * 0.5f;
     inertia = 0.0f;
     frequency = freq; 
+    scale = 0;
 }
 
 void Node::addNeighbors( vector<uint32_t> const& other ) 
@@ -49,17 +50,22 @@ void Node::impact( vector<Node> & nodes, float length, Vec3f newColor ) {
 }
 
 float Node::advance() {
-    float factor = math<float>::pow(1.07, position[2] - idealZ);
-    inertia -= level * factor * frequency; // level * factor;
+    float factor = math<float>::pow( 1.07, position[2] - idealZ );
+    bool positive = level > 0;
+    inertia -= level * factor * frequency; 
     level += inertia;
+
     if ( level > baselevel ) {
         level = baselevel;
     } else if ( level < -baselevel ) {
         level = -baselevel;
     }
 
-    float scale = (position[2] - idealZ) * 0.2f + 0.1f;
-    if ( scale < 0 ) factor = 0;
+    if ( positive != level > 0 ) {
+        scale = ( position[2] - idealZ ) * 0.1f + 0.05f;
+        if ( scale < 0 ) scale = 0;
+    }
+
     return level * amplitude * scale;
 }
 

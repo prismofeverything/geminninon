@@ -52,20 +52,18 @@ void NodeSystem::addNodes( int width, int height )
         offset = offset == 0.0f ? 0.5f : 0.0f;
         for ( int w = 0; w < width; w++ ) {
             distanceFromCenter = math<float>::sqrt(math<float>::pow(w - (width*0.5f), 2) + math<float>::pow(h - (height*0.5f), 2));
-            Node node = Node( 9.0f,
-                              Vec3f( (w+offset-width*0.5f)*dispersal, 
-                                     (h-height*0.5f)*dispersal*HEXAGON, 
-                                     -20.0f ), // + Rand::randFloat( 10.0f ) - 5.0f), 
-                              Vec3f::zero(), 
-                              50.0f, // + Rand::randFloat( 50.0f ), 
-                              Vec3f( hue, 0.5f, 0.5f ), //Vec3f( Rand::randFloat(), Rand::randFloat(), Rand::randFloat() ), 
-                              0.0f, 
-                              0.8f, // 0.01f / w, 
-                              -20.0f, 
-                              0.995f,
-                              // 0.00007f * ( w + 1 ) + ( h * 0.00002f ) ); // Rand::randFloat( 0.0008f ) + 0.0003f ); // 
-                              // 0.00008f * ( w + 1 ) + ( h * 0.00001f ) );
-                              distanceFromCenter * 0.0001f + 0.0002 );
+            Node node = Node( 9.0f,                                     // radius
+                              Vec3f( (w+offset-width*0.5f)*dispersal,   // x
+                                     (h-height*0.5f)*dispersal*HEXAGON, // y
+                                     -20.0f ),                          // z
+                              Vec3f::zero(),                            // velocity
+                              50.0f,                                    // mass
+                              Vec3f( hue, 0.5f, 0.5f ),                 // color
+                              0.0f,                                     // phase
+                              0.8f,                                     // amplitude
+                              -20.0f,                                   // ideal z-level
+                              0.995f,                                   // damping 
+                              distanceFromCenter * 0.0001f + 0.0002 );  // frequency
 
             nodes.push_back( node );
         }
@@ -136,7 +134,7 @@ void NodeSystem::changeHueSaturation( float hue, float saturation )
 
 void NodeSystem::generateAudio( uint64_t offset, uint32_t count, ci::audio::Buffer32f *buffer )
 {
-    float factor = 0.27f; // 0.001f;
+    float factor = 0.27f; 
     int step = total / contributors;
     for ( uint32_t index = 0; index < count; index++ ) {
         buffer->mData[index*2] = 0;
@@ -151,10 +149,10 @@ void NodeSystem::generateAudio( uint64_t offset, uint32_t count, ci::audio::Buff
     }
 }
 
-void NodeSystem::mass( float level )
+void NodeSystem::mass( float quarks )
 {
     for ( vector<Node>::iterator node = nodes.begin(); node != nodes.end(); node++ ) {
-        node->mass = level;
+        node->mass = quarks;
     }
 }
 
