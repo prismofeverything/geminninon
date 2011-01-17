@@ -61,8 +61,9 @@ float Node::advance() {
         level = -baselevel;
     }
 
-    if ( positive != level > 0 ) {
-        scale = ( position[2] - idealZ ) * 0.1f + 0.05f;
+    // only perform scale operations at zero crossings (to avoid zipper noise)
+    if ( positive != level > 0 ) { 
+        scale = ( position[2] - idealZ ) * 0.2f + 0.1f;
         if ( scale < 0 ) scale = 0;
     }
 

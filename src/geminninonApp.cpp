@@ -157,7 +157,7 @@ void geminninonApp::setup()
     kinectEnabled = Kinect::getNumDevices() > 0;
     if ( kinectEnabled ) {
         kinectTilt = -13.0f;
-        kinect = Kinect( Kinect::Device() ); 
+        kinect = Kinect( Kinect::Device() );
         kinectWidth = 640;
         kinectHeight = 480;
         kinectDepth = gl::Texture( kinectWidth, kinectHeight );
