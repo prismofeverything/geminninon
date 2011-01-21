@@ -55,7 +55,8 @@ class geminninonApp : public AppBasic {
     // kinect
 	Kinect kinect;
     bool kinectEnabled;
-	gl::Texture kinectDepth;
+	gl::Texture kinectDepthTexture;
+    std::shared_ptr<uint16_t> kinectDepth;
 	float kinectTilt, kinectScale;
 	float XOff, mYOff;
     int kinectWidth, kinectHeight;
@@ -156,12 +157,12 @@ void geminninonApp::setup()
 
     kinectEnabled = Kinect::getNumDevices() > 0;
     if ( kinectEnabled ) {
-        kinectTilt = -13.0f;
+        kinectTilt = 0.0f;
         kinect = Kinect( Kinect::Device() );
         kinectWidth = 640;
         kinectHeight = 480;
-        kinectDepth = gl::Texture( kinectWidth, kinectHeight );
-        kinectColor = Vec3f( 0.0f, 0.0f, 0.0f );
+        kinectDepthTexture = gl::Texture( kinectWidth, kinectHeight );
+        kinectColor = Vec3f( 0.0f, 0.0f, 1.0f );
     }
 
     system = new NodeSystem();
@@ -178,8 +179,9 @@ void geminninonApp::update()
 {
     if ( kinectEnabled ) {
         if( kinect.checkNewDepthFrame() ) {
-            kinectDepth = kinect.getDepthImage();
-            kinectDepth.setFlipped(true);
+            // kinectDepth = kinect.getDepthData();
+            kinectDepthTexture = kinect.getDepthImage();
+            kinectDepthTexture.setFlipped(true);
         }
 
         if( kinectTilt != kinect.getTilt() ) {
@@ -220,7 +222,7 @@ void geminninonApp::draw()
     if ( kinectEnabled ) {
         Color kcolor = Color( CM_HSV, kinectColor );
         glColor4f( kcolor.r, kcolor.g, kcolor.b, 0.7f );
-        gl::draw( kinectDepth, Vec2f( -kinectWidth * 0.5, -kinectHeight * 0.5 ) );
+        gl::draw( kinectDepthTexture, Vec2f( -kinectWidth * 0.5, -kinectHeight * 0.5 ) );
     }
 }
 
