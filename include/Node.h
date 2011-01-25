@@ -1,6 +1,8 @@
 #pragma once
 #include "cinder/Vector.h"
 #include "cinder/Color.h"
+#include "cinder/gl/gl.h"
+#include "cinder/gl/Texture.h"
 #include <vector>
 
 class Node {
@@ -30,6 +32,8 @@ class Node {
     float inertia;
     float frequency;
     float scale;
+
+    ci::gl::Texture texture;
 
     std::vector<uint32_t> neighbors;
 };

@@ -1,12 +1,20 @@
 #include "Node.h"
+#include "cinder/app/AppBasic.h"
 #include "cinder/Vector.h"
+#include "cinder/Rect.h"
 #include "cinder/Rand.h"
 #include "cinder/Color.h"
+#include "cinder/Cinder.h"
+#include "cinder/ImageIo.h"
 #include "cinder/CinderMath.h"
 #include "cinder/gl/gl.h"
+#include "cinder/gl/Texture.h"
 #include <vector>
+#include <iostream>
+#include <sstream>
 
 using namespace ci;
+using namespace ci::app;
 using namespace std;
 
 #define TAU 6.2831853071795862f
@@ -32,6 +40,24 @@ Node::Node( float rad, Vec3f pos, Vec3f vel, float mas, Vec3f col, float theta, 
     inertia = 0.0f;
     frequency = freq; 
     scale = 0;
+
+    bool notFound = true;
+    while (notFound) {
+        try {
+                std::stringstream ss;
+                ss << "/Users/rspangler/Desktop/design_field_shoes/3 " << (Rand::randInt(99) + 2) << ".png";
+                texture = gl::Texture( loadImage( ss.str() ) );
+                notFound = false;
+        }
+        catch( ... ) {
+            
+        }
+    }
+    
+    /* texture = gl::Texture( loadImage( "/Users/rspangler/Desktop/design_field_shoes/3 4.png" ) ); */
+    /* gl::Texture::Format format; */
+    /* format.enableMipmapping(true);			 */
+    /* texture = gl::Texture( loadImage( "/Users/rspangler/Desktop/design_field_shoes/3 5_set_2.png" ), format ); */
 }
 
 void Node::addNeighbors( vector<uint32_t> const& other ) 
@@ -106,6 +132,13 @@ void Node::draw()
     float ratio = (position[2] - idealZ) * 0.15f + 1.5f;
     Color colorcolor = Color( CM_HSV, color );
 
-    glColor4f( colorcolor.r*ratio, colorcolor.g*ratio, colorcolor.b*ratio, 0.9f );
-    gl::drawSphere( position, radius, 8 );
+    // glColor4f( colorcolor.r*ratio, colorcolor.g*ratio, colorcolor.b*ratio, 0.9f );
+    // texture.bind();
+    gl::color( Color::white() );
+    // gl::pushModelView();
+    // gl::drawSolidRect( Rectf( position[0], position[1], position[0]+5, position[1]+5) );
+    // gl::popModelView();
+    // texture.unbind();
+    gl::draw( texture, Rectf( position[0], position[1], position[0]+80, position[1]+80) );
+    // gl::drawSphere( position, radius, 8 );
 }

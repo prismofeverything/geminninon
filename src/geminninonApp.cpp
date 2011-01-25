@@ -19,7 +19,7 @@ using namespace ci::app;
 using std::vector;
 using std::string;
 
-#define GRANULARITY 53
+#define GRANULARITY 4
 #define TAU 6.2831853071795862f
 
 class geminninonApp : public AppBasic {
@@ -51,6 +51,9 @@ class geminninonApp : public AppBasic {
 
     int width;
     int height;
+
+    // pngs
+    gl::Texture shoeTexture;
 
     // kinect
 	Kinect kinect;
@@ -149,7 +152,7 @@ void geminninonApp::setup()
     mouseIsDown = false;
     keyIsDown = false;
 
-    rotation.w = -0.74f;
+    // rotation.w = -0.74f;
     eye = Vec3f( 0.0f, 0.0f, 300.0f );
     towards = Vec3f::zero();
     up = Vec3f::yAxis();
@@ -173,6 +176,9 @@ void geminninonApp::setup()
 
     gl::enableDepthRead();
     gl::enableDepthWrite();
+
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void geminninonApp::update()

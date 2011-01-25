@@ -2,6 +2,8 @@
 #include "cinder/Rand.h"
 #include "cinder/Vector.h"
 #include "cinder/audio/PcmBuffer.h"
+#include "cinder/gl/gl.h"
+#include "cinder/gl/Texture.h"
 #include <vector>
 #include <algorithm>
 

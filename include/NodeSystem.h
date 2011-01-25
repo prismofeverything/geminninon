@@ -3,6 +3,8 @@
 #include "cinder/Color.h"
 #include "cinder/Rand.h"
 #include "cinder/audio/PcmBuffer.h"
+#include "cinder/gl/gl.h"
+#include "cinder/gl/Texture.h"
 #include <vector>
 #include "Node.h"
 
